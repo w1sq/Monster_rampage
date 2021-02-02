@@ -1,8 +1,18 @@
 import pygame
 import random
 import Groups
-from pygame_project import show_defeat, show_intro, show_end, level
+import sys
 from constants import size, height, width, tile_width, tile_height
+
+
+def game_over():
+    pygame.quit()
+    sys.exit()
+
+
+level = '1'
+
+screen = pygame.display.set_mode(size)
 
 
 class Background(pygame.sprite.Sprite):
@@ -27,9 +37,10 @@ class EnemyBullet(pygame.sprite.Sprite):
         self.rect.y = self.y
 
     def update(self, *args):
-        if pygame.sprite.spritecollideany(self, Groups.all_people):
+        if pygame.sprite.spritecollideany(self, Groups.all_people) or self.rect.y not in range(0,height):
             self.kill()
         self.rect = self.rect.move(0, 5)
+
 
 
 class Cannon(pygame.sprite.Sprite):
@@ -58,9 +69,6 @@ class Cannon(pygame.sprite.Sprite):
         if keys[pygame.K_RIGHT] and self.rect.x < (width - 100):
             self.x += 1
             self.rect.x += tile_width
-        if pygame.sprite.spritecollideany(self, Groups.all_monsters) or pygame.sprite.spritecollideany(self,
-                                                                                                       Groups.enemy_bullets):
-            show_defeat()
 
     def get_pos(self):
         return self.rect.x, self.rect.y
@@ -73,10 +81,8 @@ class Monster(pygame.sprite.Sprite):
 
     def __init__(self, x, y, power):
         super().__init__(Groups.all_sprites, Groups.all_monsters)
-        self.x = x
-        self.y = y
         self.power = power
-        if self.power == 150:
+        if self.power == 50:
             self.image = Monster.boss_image
             self.rect = Monster.boss_image.get_rect()
         elif self.power >= 5:
@@ -85,6 +91,9 @@ class Monster(pygame.sprite.Sprite):
         else:
             self.image = Monster.monster_image
             self.rect = Monster.monster_image.get_rect()
+        self.rect = self.image.get_rect()
+        self.x = x * self.rect.width
+        self.y = y * self.rect.height
         self.rect.x = self.x
         self.rect.y = self.y
 
@@ -100,8 +109,6 @@ class Monster(pygame.sprite.Sprite):
             self.rect = self.rect.move(random.randint(-int(level), 0), 1)
         else:
             self.rect = self.rect.move(random.randint(-int(level), int(level)), 1)
-        if self.rect.y >= height:
-            show_defeat()
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -123,3 +130,126 @@ class Bullet(pygame.sprite.Sprite):
             self.rect = self.rect.move(0, -10)
         if self.rect.y <= -1:
             self.kill()
+
+
+def load_level(filename):
+    with open("data/levels/" + filename + ".txt") as file:
+        level = list(map(str.strip, file))
+        max_len = len(max(level, key=len))
+        level = list(map(lambda line: line.ljust(max_len, ' '), level))
+        return level
+
+
+def create_level(filename):
+    loaded_level = load_level(filename)
+    for y in range(len(loaded_level)):
+        for x in range(len(loaded_level[y])):
+            if loaded_level[y][x] == "B":
+                monster = Monster(0, -1, 50)
+            elif int(loaded_level[y][x]) in range(1, 10):
+                monster = Monster(x, -y, int(loaded_level[y][x]))
+
+
+def show_defeat():
+    Groups.all_people.empty()
+    defeat_image = pygame.image.load("data/defeat.jpg")
+    defeat_screen = pygame.transform.scale(defeat_image, (width, height))
+    screen.blit(defeat_screen, (0, 0))
+    font = pygame.font.Font("data/font.ttf", 50)
+    defeat_text = font.render("Вы проиграли :(", True, (0, 0, 255))
+    screen.blit(defeat_text, (200, 100))
+    pygame.display.flip()
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                game_over()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                show_intro(level)
+                return
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_ESCAPE]:
+            show_intro(level)
+
+
+def show_end():
+    Groups.all_people.empty()
+    end_screen = pygame.image.load("data/end.jpg")
+    end_screen = pygame.transform.scale(end_screen, (width, height))
+    screen.blit(end_screen, (0, 0))
+    font = pygame.font.Font("data/font.ttf", 50)
+    end_text = font.render("Спасибо за игру", True, (0, 0, 255))
+    screen.blit(end_text, (200, 100))
+    pygame.display.flip()
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                game_over()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                show_intro(level)
+                return
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_ESCAPE]:
+            show_intro(level)
+
+
+def show_intro(level):
+    Groups.enemy_bullets.empty()
+    Groups.all_people.empty()
+    cannon = Cannon(10, 15)
+    Groups.all_bullets.empty()
+    Groups.all_monsters.empty()
+    intro_screen = pygame.image.load("data/game_fon.jpg")
+    intro_screen = pygame.transform.scale(intro_screen, (width, height))
+    screen.blit(intro_screen, (0, 0))
+    font = pygame.font.Font("data/font.ttf", 50)
+    level_font = pygame.font.Font("data/font.ttf", 30)
+    if level == '1':
+        Groups.all_monsters.empty()
+        Groups.all_bullets.empty()
+        Groups.enemy_bullets.empty()
+        new_text = font.render("Новая игра", True, (0, 0, 255))
+        exit_text = font.render("Выход", True, (0, 0, 255))
+        screen.blit(new_text, (50, 100))
+        screen.blit(exit_text, (50, 200))
+        exit_text_rect = exit_text.get_rect()
+        exit_text_rect.x = 50
+        exit_text_rect.y = 200
+        new_text_rect = new_text.get_rect()
+        new_text_rect.x = 50
+        new_text_rect.y = 100
+        create_level(level)
+    else:
+        game_text = font.render("Продолжить", True, (0, 0, 255))
+        level_text = level_font.render(f'Уровень: {level}', True, (0, 0, 255))
+        screen.blit(level_text, (115, 135))
+        screen.blit(game_text, (50, 100))
+        new_text = font.render("Новая игра", True, (0, 0, 255))
+        exit_text = font.render("Выход", True, (0, 0, 255))
+        screen.blit(new_text, (50, 200))
+        screen.blit(exit_text, (50, 300))
+        game_text_rect = game_text.get_rect()
+        game_text_rect.x = 50
+        game_text_rect.y = 100
+        exit_text_rect = exit_text.get_rect()
+        exit_text_rect.x = 50
+        exit_text_rect.y = 300
+        new_text_rect = new_text.get_rect()
+        new_text_rect.x = 50
+        new_text_rect.y = 200
+    pygame.display.flip()
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                game_over()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if exit_text_rect.collidepoint(event.pos):
+                    game_over()
+                elif new_text_rect.collidepoint(event.pos):
+                    Groups.all_monsters.empty()
+                    Groups.all_bullets.empty()
+                    Groups.enemy_bullets.empty()
+                    create_level(level)
+                    return '1'
+                elif level != '1' and game_text_rect.collidepoint(event.pos):
+                    create_level(level)
+                    return level

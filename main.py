@@ -33,11 +33,16 @@ while True:
     Groups.all_people.update()
     if schet % 3 == 0 and keys[pygame.K_SPACE]:
         bullet = Bullet(cannon.get_pos()[0] - 20, cannon.get_pos()[1])
-    if schet % (int(level) * 5) == 0:
+    if schet % (int(level) * 20) == 0:
         for sprite in Groups.all_monsters:
-            if sprite.power >= 5:
-                enemy_bullet = EnemyBullet(sprite.rect.x + random.randint(0, sprite.image.get_size()[0]),
-                                           sprite.rect.y + sprite.image.get_size()[1])
+            if sprite.power in range(5, 10) and sprite.rect.y in range(-sprite.rect.height, constants.height):
+                enemy_bullet = EnemyBullet(
+                    sprite.rect.x + random.randint(-sprite.rect.width // 2, sprite.rect.width // 2),
+                    sprite.rect.y + sprite.rect.height)
+            elif sprite.power == 75 and sprite.rect.y in range(-sprite.rect.height, constants.height):
+                enemy_bullet = EnemyBullet(
+                    sprite.rect.x + random.randint(0, sprite.rect.width),
+                    sprite.rect.y + sprite.rect.height)
     if not Groups.all_monsters:
         if level == '5':
             level = '1'

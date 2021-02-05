@@ -10,7 +10,7 @@ def game_over():
     sys.exit()
 
 
-level = '1'
+level = '5'
 
 screen = pygame.display.set_mode(size)
 
@@ -37,10 +37,9 @@ class EnemyBullet(pygame.sprite.Sprite):
         self.rect.y = self.y
 
     def update(self, *args):
-        if pygame.sprite.spritecollideany(self, Groups.all_people) or self.rect.y not in range(0,height):
+        if pygame.sprite.spritecollideany(self, Groups.all_people):
             self.kill()
         self.rect = self.rect.move(0, 5)
-
 
 
 class Cannon(pygame.sprite.Sprite):
@@ -69,6 +68,9 @@ class Cannon(pygame.sprite.Sprite):
         if keys[pygame.K_RIGHT] and self.rect.x < (width - 100):
             self.x += 1
             self.rect.x += tile_width
+        if pygame.sprite.spritecollideany(self,Groups.all_monsters) or pygame.sprite.spritecollideany(self,Groups.enemy_bullets):
+            self.kill()
+            show_defeat()
 
     def get_pos(self):
         return self.rect.x, self.rect.y
@@ -82,7 +84,7 @@ class Monster(pygame.sprite.Sprite):
     def __init__(self, x, y, power):
         super().__init__(Groups.all_sprites, Groups.all_monsters)
         self.power = power
-        if self.power == 50:
+        if self.power == 75:
             self.image = Monster.boss_image
             self.rect = Monster.boss_image.get_rect()
         elif self.power >= 5:
@@ -91,6 +93,7 @@ class Monster(pygame.sprite.Sprite):
         else:
             self.image = Monster.monster_image
             self.rect = Monster.monster_image.get_rect()
+        self.live = power
         self.rect = self.image.get_rect()
         self.x = x * self.rect.width
         self.y = y * self.rect.height
@@ -99,8 +102,8 @@ class Monster(pygame.sprite.Sprite):
 
     def update(self, *args):
         if pygame.sprite.spritecollideany(self, Groups.all_bullets):
-            if self.power > 1:
-                self.power -= 1
+            if self.live > 1:
+                self.live -= 1
             else:
                 self.kill()
         if self.rect.x < 0:
@@ -145,7 +148,7 @@ def create_level(filename):
     for y in range(len(loaded_level)):
         for x in range(len(loaded_level[y])):
             if loaded_level[y][x] == "B":
-                monster = Monster(0, -1, 50)
+                monster = Monster(0, -1, 75)
             elif int(loaded_level[y][x]) in range(1, 10):
                 monster = Monster(x, -y, int(loaded_level[y][x]))
 

@@ -23,13 +23,14 @@ while True:
             level = '1'
             show_defeat()
     for cannon in Groups.all_people:
-        if pygame.sprite.spritecollideany(cannon, Groups.all_monsters) or pygame.sprite.spritecollideany(cannon,
-                                                                                                         Groups.enemy_bullets):
+        if pygame.sprite.spritecollideany(cannon, Groups.all_monsters) or \
+                pygame.sprite.spritecollideany(cannon, Groups.enemy_bullets):
             level = '1'
+            cannon.kill()
             show_defeat()
     keys = pygame.key.get_pressed()
     if keys[pygame.K_ESCAPE]:
-        xlevel = show_intro(level)
+        show_intro(level)
     Groups.all_people.update()
     if schet % 3 == 0 and keys[pygame.K_SPACE]:
         bullet = Bullet(cannon.get_pos()[0] - 20, cannon.get_pos()[1])

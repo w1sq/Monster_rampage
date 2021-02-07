@@ -10,7 +10,7 @@ def game_over():
     sys.exit()
 
 
-level = '5'
+level = '1'
 
 screen = pygame.display.set_mode(size)
 
@@ -68,9 +68,6 @@ class Cannon(pygame.sprite.Sprite):
         if keys[pygame.K_RIGHT] and self.rect.x < (width - 100):
             self.x += 1
             self.rect.x += tile_width
-        if pygame.sprite.spritecollideany(self,Groups.all_monsters) or pygame.sprite.spritecollideany(self,Groups.enemy_bullets):
-            self.kill()
-            show_defeat()
 
     def get_pos(self):
         return self.rect.x, self.rect.y

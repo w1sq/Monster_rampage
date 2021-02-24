@@ -11,6 +11,7 @@ def game_over():
 
 
 level = '1'
+music_volume = 0.2
 
 screen = pygame.display.set_mode(size)
 
@@ -73,6 +74,26 @@ class Cannon(pygame.sprite.Sprite):
         return self.rect.x, self.rect.y
 
 
+class Boom(pygame.sprite.Sprite):
+    boom_image = pygame.image.load("data/boom.png")
+
+    def __init__(self, x, y):
+        super().__init__(Groups.all_sprites, Groups.booms)
+        self.image = Boom.boom_image
+        self.rect = self.image.get_rect()
+        self.x = x
+        self.y = y
+        self.rect.x = self.x
+        self.rect.y = self.y
+        self.otschet = 3
+
+    def update(self):
+        if self.otschet > 0:
+            self.otschet -= 1
+        else:
+            self.kill()
+
+
 class Monster(pygame.sprite.Sprite):
     monster_image = pygame.image.load("data/enemy.png")
     boss_image = pygame.image.load("data/boss1.png")
@@ -103,6 +124,8 @@ class Monster(pygame.sprite.Sprite):
                 self.live -= 1
             else:
                 self.kill()
+                boom = Boom(self.rect.x, self.rect.y)
+
         if self.rect.x < 0:
             self.rect = self.rect.move(random.randint(0, int(level)), 1)
         elif self.rect.x > width:
@@ -193,6 +216,7 @@ def show_end():
 
 
 def show_intro(level):
+    global music_volume
     Groups.enemy_bullets.empty()
     Groups.all_people.empty()
     cannon = Cannon(10, 15)
@@ -209,14 +233,26 @@ def show_intro(level):
         Groups.enemy_bullets.empty()
         new_text = font.render("Новая игра", True, (0, 0, 255))
         exit_text = font.render("Выход", True, (0, 0, 255))
+        music_text = font.render("Музыка", True, (0, 0, 255))
+        plus = font.render("+", True, (0, 0, 255))
+        minus = font.render("-", True, (0, 0, 255))
         screen.blit(new_text, (50, 100))
         screen.blit(exit_text, (50, 200))
+        screen.blit(music_text, (380, 700))
+        screen.blit(plus, (400, 730))
+        screen.blit(minus, (440, 730))
         exit_text_rect = exit_text.get_rect()
         exit_text_rect.x = 50
         exit_text_rect.y = 200
         new_text_rect = new_text.get_rect()
         new_text_rect.x = 50
         new_text_rect.y = 100
+        plus_rect = plus.get_rect()
+        plus_rect.x = 400
+        plus_rect.y = 730
+        minus_rect = minus.get_rect()
+        minus_rect.x = 440
+        minus_rect.y = 730
         create_level(level)
     else:
         game_text = font.render("Продолжить", True, (0, 0, 255))
@@ -225,8 +261,14 @@ def show_intro(level):
         screen.blit(game_text, (50, 100))
         new_text = font.render("Новая игра", True, (0, 0, 255))
         exit_text = font.render("Выход", True, (0, 0, 255))
+        music_text = font.render("Музыка", True, (0, 0, 255))
+        plus = font.render("+", True, (0, 0, 255))
+        minus = font.render("-", True, (0, 0, 255))
         screen.blit(new_text, (50, 200))
         screen.blit(exit_text, (50, 300))
+        screen.blit(music_text, (380, 700))
+        screen.blit(plus, (400, 730))
+        screen.blit(minus, (440, 730))
         game_text_rect = game_text.get_rect()
         game_text_rect.x = 50
         game_text_rect.y = 100
@@ -236,6 +278,12 @@ def show_intro(level):
         new_text_rect = new_text.get_rect()
         new_text_rect.x = 50
         new_text_rect.y = 200
+        plus_rect = plus.get_rect()
+        plus_rect.x = 400
+        plus_rect.y = 730
+        minus_rect = minus.get_rect()
+        minus_rect.x = 440
+        minus_rect.y = 730
     pygame.display.flip()
     while True:
         for event in pygame.event.get():
@@ -244,6 +292,12 @@ def show_intro(level):
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if exit_text_rect.collidepoint(event.pos):
                     game_over()
+                elif plus_rect.collidepoint(event.pos):
+                    music_volume += 0.1
+                    pygame.mixer.music.set_volume(music_volume)
+                elif minus_rect.collidepoint(event.pos):
+                    music_volume -= 0.1
+                    pygame.mixer.music.set_volume(music_volume)
                 elif new_text_rect.collidepoint(event.pos):
                     Groups.all_monsters.empty()
                     Groups.all_bullets.empty()

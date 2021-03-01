@@ -10,7 +10,7 @@ def game_over():
     sys.exit()
 
 
-level = '1'
+level = '5'
 music_volume = 0.2
 
 screen = pygame.display.set_mode(size)
@@ -27,10 +27,14 @@ class Background(pygame.sprite.Sprite):
 
 class EnemyBullet(pygame.sprite.Sprite):
     bullet_image = pygame.image.load("data/enemy_bullet.png")
+    boss_bullet = pygame.image.load("data/boss_bullet.png")
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, level):
         super().__init__(Groups.all_sprites, Groups.enemy_bullets)
-        self.image = EnemyBullet.bullet_image
+        if level == 'B':
+            self.image = EnemyBullet.boss_bullet
+        else:
+            self.image = EnemyBullet.bullet_image
         self.rect = self.image.get_rect()
         self.x = x
         self.y = y
@@ -124,8 +128,9 @@ class Monster(pygame.sprite.Sprite):
                 self.live -= 1
             else:
                 self.kill()
+                pygame.mixer.Channel(1).set_volume(0.3)
+                pygame.mixer.Channel(1).play(pygame.mixer.Sound('data/sound.mp3'))
                 boom = Boom(self.rect.x, self.rect.y)
-
         if self.rect.x < 0:
             self.rect = self.rect.move(random.randint(0, int(level)), 1)
         elif self.rect.x > width:
@@ -179,7 +184,7 @@ def show_defeat():
     defeat_screen = pygame.transform.scale(defeat_image, (width, height))
     screen.blit(defeat_screen, (0, 0))
     font = pygame.font.Font("data/font.ttf", 50)
-    defeat_text = font.render("Вы проиграли :(", True, (0, 0, 255))
+    defeat_text = font.render("You lose :(", True, (0, 0, 255))
     screen.blit(defeat_text, (200, 100))
     pygame.display.flip()
     while True:
@@ -200,7 +205,7 @@ def show_end():
     end_screen = pygame.transform.scale(end_screen, (width, height))
     screen.blit(end_screen, (0, 0))
     font = pygame.font.Font("data/font.ttf", 50)
-    end_text = font.render("Спасибо за игру", True, (0, 0, 255))
+    end_text = font.render("Thanks for playing", True, (0, 0, 255))
     screen.blit(end_text, (200, 100))
     pygame.display.flip()
     while True:
@@ -231,16 +236,16 @@ def show_intro(level):
         Groups.all_monsters.empty()
         Groups.all_bullets.empty()
         Groups.enemy_bullets.empty()
-        new_text = font.render("Новая игра", True, (0, 0, 255))
-        exit_text = font.render("Выход", True, (0, 0, 255))
-        music_text = font.render("Музыка", True, (0, 0, 255))
+        new_text = font.render("New game", True, (0, 0, 255))
+        exit_text = font.render("Exit", True, (0, 0, 255))
+        music_text = font.render("Music", True, (0, 0, 255))
         plus = font.render("+", True, (0, 0, 255))
         minus = font.render("-", True, (0, 0, 255))
         screen.blit(new_text, (50, 100))
         screen.blit(exit_text, (50, 200))
         screen.blit(music_text, (380, 700))
-        screen.blit(plus, (400, 730))
-        screen.blit(minus, (440, 730))
+        screen.blit(plus, (390, 730))
+        screen.blit(minus, (425, 730))
         exit_text_rect = exit_text.get_rect()
         exit_text_rect.x = 50
         exit_text_rect.y = 200
@@ -248,27 +253,27 @@ def show_intro(level):
         new_text_rect.x = 50
         new_text_rect.y = 100
         plus_rect = plus.get_rect()
-        plus_rect.x = 400
+        plus_rect.x = 390
         plus_rect.y = 730
         minus_rect = minus.get_rect()
-        minus_rect.x = 440
+        minus_rect.x = 425
         minus_rect.y = 730
         create_level(level)
     else:
-        game_text = font.render("Продолжить", True, (0, 0, 255))
-        level_text = level_font.render(f'Уровень: {level}', True, (0, 0, 255))
-        screen.blit(level_text, (115, 135))
+        game_text = font.render("Continue", True, (0, 0, 255))
+        level_text = level_font.render(f'Level: {level}', True, (0, 0, 255))
+        screen.blit(level_text, (95, 135))
         screen.blit(game_text, (50, 100))
-        new_text = font.render("Новая игра", True, (0, 0, 255))
-        exit_text = font.render("Выход", True, (0, 0, 255))
-        music_text = font.render("Музыка", True, (0, 0, 255))
+        new_text = font.render("New game", True, (0, 0, 255))
+        exit_text = font.render("Exit", True, (0, 0, 255))
+        music_text = font.render("Music", True, (0, 0, 255))
         plus = font.render("+", True, (0, 0, 255))
         minus = font.render("-", True, (0, 0, 255))
         screen.blit(new_text, (50, 200))
         screen.blit(exit_text, (50, 300))
         screen.blit(music_text, (380, 700))
-        screen.blit(plus, (400, 730))
-        screen.blit(minus, (440, 730))
+        screen.blit(plus, (390, 730))
+        screen.blit(minus, (425, 730))
         game_text_rect = game_text.get_rect()
         game_text_rect.x = 50
         game_text_rect.y = 100
@@ -279,10 +284,10 @@ def show_intro(level):
         new_text_rect.x = 50
         new_text_rect.y = 200
         plus_rect = plus.get_rect()
-        plus_rect.x = 400
+        plus_rect.x = 390
         plus_rect.y = 730
         minus_rect = minus.get_rect()
-        minus_rect.x = 440
+        minus_rect.x = 425
         minus_rect.y = 730
     pygame.display.flip()
     while True:
@@ -294,10 +299,10 @@ def show_intro(level):
                     game_over()
                 elif plus_rect.collidepoint(event.pos):
                     music_volume += 0.1
-                    pygame.mixer.music.set_volume(music_volume)
+                    pygame.mixer.Channel(0).set_volume(music_volume)
                 elif minus_rect.collidepoint(event.pos):
                     music_volume -= 0.1
-                    pygame.mixer.music.set_volume(music_volume)
+                    pygame.mixer.Channel(0).set_volume(music_volume)
                 elif new_text_rect.collidepoint(event.pos):
                     Groups.all_monsters.empty()
                     Groups.all_bullets.empty()

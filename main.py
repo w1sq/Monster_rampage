@@ -10,9 +10,8 @@ pygame.init()
 clock = pygame.time.Clock()
 pygame.display.set_caption("Monster_rampage")
 BackGround = Background("data/fon.png", [0, 0])
-pygame.mixer.music.load('data/music.mp3')
-pygame.mixer.music.set_volume(music_volume)
-pygame.mixer.music.play(-1, 0.0)
+pygame.mixer.Channel(0).set_volume(music_volume)
+pygame.mixer.Channel(0).play(pygame.mixer.Sound('data/music.mp3'))
 cannon = Cannon(10, 15)
 FPS = 20
 show_intro(level)
@@ -34,30 +33,31 @@ while True:
             cannon.kill()
             show_defeat()
     keys = pygame.key.get_pressed()
-    mouse_buttons = pygame.mouse.get_pressed()
     if keys[pygame.K_ESCAPE]:
         show_intro(level)
     Groups.all_people.update()
-    if schet % 3 == 0 and keys[pygame.K_SPACE] or schet % 3 == 0 and mouse_buttons[0]:
+    if schet % 3 == 0 and keys[pygame.K_SPACE]:
         bullet = Bullet(cannon.get_pos()[0] - 20, cannon.get_pos()[1])
-    if schet % (int(level) * 20) == 0:
+        pygame.mixer.Channel(5).set_volume(0.03)
+        pygame.mixer.Channel(5).play(pygame.mixer.Sound('data/shot.mp3'))
+    if schet % (int(level) * 18) == 0:
         for sprite in Groups.all_monsters:
             if sprite.power in range(5, 10) and sprite.rect.y in range(-sprite.rect.height, constants.height):
                 enemy_bullet = EnemyBullet(
                     sprite.rect.x + random.randint(-sprite.rect.width // 2, sprite.rect.width // 2),
-                    sprite.rect.y + sprite.rect.height)
+                    sprite.rect.y + sprite.rect.height, 0)
+                pygame.mixer.Channel(6).set_volume(0.3)
+                pygame.mixer.Channel(6).play(pygame.mixer.Sound('data/shot.mp3'))
             elif sprite.power == 75 and sprite.rect.y in range(-sprite.rect.height, constants.height):
                 enemy_bullet = EnemyBullet(
                     sprite.rect.x + random.randint(0, sprite.rect.width),
-                    sprite.rect.y + sprite.rect.height)
+                    sprite.rect.y + sprite.rect.height, 'B')
+                pygame.mixer.Channel(7).set_volume(music_volume)
+                pygame.mixer.Channel(7).play(pygame.mixer.Sound('data/shot.mp3'))
     if not Groups.all_monsters:
         if level == '5':
             level = '1'
-            microscet = 10
-            if microscet != 0:
-                microscet -= 1
-            else:
-                show_end()
+            show_end()
         else:
             level = show_intro(str(int(level) + 1))
     Groups.all_bullets.update()

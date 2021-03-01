@@ -10,7 +10,7 @@ def game_over():
     sys.exit()
 
 
-level = '5'
+level = '1'
 music_volume = 0.2
 
 screen = pygame.display.set_mode(size)

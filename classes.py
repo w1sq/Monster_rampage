@@ -2,7 +2,7 @@ import pygame
 import random
 import Groups
 import sys
-from constants import size, height, width, tile_width, tile_height
+from constants import SIZE, HEIGHT, WIDTH, TILE_WIDTH, TILE_HEIGHT
 
 
 def game_over():
@@ -10,10 +10,10 @@ def game_over():
     sys.exit()
 
 
-level = '5'
+level = '1'
 music_volume = 0.2
 
-screen = pygame.display.set_mode(size)
+screen = pygame.display.set_mode(SIZE)
 
 
 class Background(pygame.sprite.Sprite):
@@ -56,23 +56,23 @@ class Cannon(pygame.sprite.Sprite):
         self.y = y
         self.image = Cannon.cannon_image
         self.rect = self.image.get_rect()
-        self.rect.x = x * tile_width + (tile_width - self.rect.width) // 2
-        self.rect.y = y * tile_height + (tile_height - self.rect.height) // 2
+        self.rect.x = x * TILE_WIDTH + (TILE_WIDTH - self.rect.width) // 2
+        self.rect.y = y * TILE_HEIGHT + (TILE_HEIGHT - self.rect.height) // 2
 
     def update(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_UP] and self.rect.y > 10:
             self.y -= 1
-            self.rect.y -= tile_height
-        if keys[pygame.K_DOWN] and self.rect.y < (height - 100):
+            self.rect.y -= TILE_HEIGHT
+        if keys[pygame.K_DOWN] and self.rect.y < (HEIGHT - 100):
             self.y += 1
-            self.rect.y += tile_height
+            self.rect.y += TILE_HEIGHT
         if keys[pygame.K_LEFT] and self.rect.x > 10:
             self.x -= 1
-            self.rect.x -= tile_width
-        if keys[pygame.K_RIGHT] and self.rect.x < (width - 100):
+            self.rect.x -= TILE_WIDTH
+        if keys[pygame.K_RIGHT] and self.rect.x < (WIDTH - 100):
             self.x += 1
-            self.rect.x += tile_width
+            self.rect.x += TILE_WIDTH
 
     def get_pos(self):
         return self.rect.x, self.rect.y
@@ -133,7 +133,7 @@ class Monster(pygame.sprite.Sprite):
                 boom = Boom(self.rect.x, self.rect.y)
         if self.rect.x < 0:
             self.rect = self.rect.move(random.randint(0, int(level)), 1)
-        elif self.rect.x > width:
+        elif self.rect.x > WIDTH:
             self.rect = self.rect.move(random.randint(-int(level), 0), 1)
         else:
             self.rect = self.rect.move(random.randint(-int(level), int(level)), 1)
@@ -181,7 +181,7 @@ def create_level(filename):
 def show_defeat():
     Groups.all_people.empty()
     defeat_image = pygame.image.load("data/defeat.jpg")
-    defeat_screen = pygame.transform.scale(defeat_image, (width, height))
+    defeat_screen = pygame.transform.scale(defeat_image, (WIDTH, HEIGHT))
     screen.blit(defeat_screen, (0, 0))
     font = pygame.font.Font("data/font.ttf", 50)
     defeat_text = font.render("You lose :(", True, (0, 0, 255))
@@ -202,7 +202,7 @@ def show_defeat():
 def show_end():
     Groups.all_people.empty()
     end_screen = pygame.image.load("data/end.jpg")
-    end_screen = pygame.transform.scale(end_screen, (width, height))
+    end_screen = pygame.transform.scale(end_screen, (WIDTH, HEIGHT))
     screen.blit(end_screen, (0, 0))
     font = pygame.font.Font("data/font.ttf", 50)
     end_text = font.render("Thanks for playing", True, (0, 0, 255))
@@ -228,7 +228,7 @@ def show_intro(level):
     Groups.all_bullets.empty()
     Groups.all_monsters.empty()
     intro_screen = pygame.image.load("data/game_fon.jpg")
-    intro_screen = pygame.transform.scale(intro_screen, (width, height))
+    intro_screen = pygame.transform.scale(intro_screen, (WIDTH, HEIGHT))
     screen.blit(intro_screen, (0, 0))
     font = pygame.font.Font("data/font.ttf", 50)
     level_font = pygame.font.Font("data/font.ttf", 30)

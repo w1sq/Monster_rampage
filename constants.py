@@ -1,2 +1,2 @@
-size = width, height = 500, 800
-tile_width, tile_height = 20, 20
+SIZE = WIDTH, HEIGHT = 500, 800
+TILE_WIDTH, TILE_HEIGHT = 20, 20

@@ -8,6 +8,8 @@ from classes import music_volume
 
 pygame.init()
 clock = pygame.time.Clock()
+icon = pygame.image.load('data/icon.png')
+pygame.display.set_icon(icon)
 pygame.display.set_caption("Monster_rampage")
 BackGround = Background("data/fon.png", [0, 0])
 pygame.mixer.Channel(0).set_volume(music_volume)
@@ -23,7 +25,7 @@ while True:
             game_over()
             pygame.mixer.stop()
     for monster in Groups.all_monsters:
-        if monster.rect.y > constants.height:
+        if monster.rect.y > constants.HEIGHT:
             level = '1'
             show_defeat()
     for cannon in Groups.all_people:
@@ -42,13 +44,13 @@ while True:
         pygame.mixer.Channel(5).play(pygame.mixer.Sound('data/shot.mp3'))
     if schet % (int(level) * 18) == 0:
         for sprite in Groups.all_monsters:
-            if sprite.power in range(5, 10) and sprite.rect.y in range(-sprite.rect.height, constants.height):
+            if sprite.power in range(5, 10) and sprite.rect.y in range(-sprite.rect.height, constants.HEIGHT):
                 enemy_bullet = EnemyBullet(
                     sprite.rect.x + random.randint(-sprite.rect.width // 2, sprite.rect.width // 2),
                     sprite.rect.y + sprite.rect.height, 0)
                 pygame.mixer.Channel(6).set_volume(0.3)
                 pygame.mixer.Channel(6).play(pygame.mixer.Sound('data/shot.mp3'))
-            elif sprite.power == 75 and sprite.rect.y in range(-sprite.rect.height, constants.height):
+            elif sprite.power == 75 and sprite.rect.y in range(-sprite.rect.height, constants.HEIGHT):
                 enemy_bullet = EnemyBullet(
                     sprite.rect.x + random.randint(0, sprite.rect.width),
                     sprite.rect.y + sprite.rect.height, 'B')
